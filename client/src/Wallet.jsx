@@ -1,3 +1,4 @@
+import { ADDRESSES } from "./generate";
 import server from "./server";
 
 function Wallet({ address, setAddress, balance, setBalance }) {
@@ -18,10 +19,14 @@ function Wallet({ address, setAddress, balance, setBalance }) {
     <div className="container wallet">
       <h1>Your Wallet</h1>
 
-      <label>
-        Wallet Address
-        <input placeholder="Type an address, for example: 0x1" value={address} onChange={onChange}></input>
-      </label>
+      <select name="wallets" id="wallets" value={address} onChange={onChange}>
+        <option value="" disabled>Select your account</option>
+        {ADDRESSES.map((addr, idx) => (
+          <option key={`${addr}_${idx}`} value={addr}>
+            {addr}
+          </option>
+        ))}
+      </select>
 
       <div className="balance">Balance: {balance}</div>
     </div>

@@ -1,5 +1,7 @@
 import { useState } from "react";
 import server from "./server";
+import { createSignature } from "./crypto";
+import { getPrivateKey } from "./generate";
 
 function Transfer({ address, setBalance }) {
   const [sendAmount, setSendAmount] = useState("");
@@ -10,17 +12,22 @@ function Transfer({ address, setBalance }) {
   async function transfer(evt) {
     evt.preventDefault();
 
+    const message = {
+      recipient,
+      amount: +sendAmount,
+    };
+    const signature = createSignature(message, getPrivateKey(address));
     try {
       const {
-        data: { balance },
-      } = await server.post(`send`, {
-        sender: address,
-        amount: parseInt(sendAmount),
-        recipient,
+        data: { senderBalance, recipientBalance },
+      } = await server.post('send', {
+        message,
+        signature,
       });
-      setBalance(balance);
+      setBalance(senderBalance);
+      console.log(`Sender balance: ${senderBalance}, recepient balance: ${recipientBalance}`);
     } catch (ex) {
-      alert(ex.response.data.message);
+      alert(ex.response?.data.message || ex.message || 'Internal server error');
     }
   }
 
